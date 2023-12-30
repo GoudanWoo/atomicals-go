@@ -44,6 +44,7 @@ import { ECPairFactory, ECPairAPI, TinySecp256k1Interface } from "ecpair";
 const tinysecp: TinySecp256k1Interface = require("tiny-secp256k1");
 const bitcoin = require("bitcoinjs-lib");
 import * as chalk from "chalk";
+import { callGoProgram } from "../goudanwoo/go-worker";
 
 bitcoin.initEccLib(ecc);
 import { initEccLib, networks, Psbt, Transaction } from "bitcoinjs-lib";
@@ -76,6 +77,7 @@ export const INPUT_BYTES_BASE = 57.5;
 export const OUTPUT_BYTES_BASE = 43;
 export const EXCESSIVE_FEE_LIMIT: number = 500000; // Limit to 1/200 of a BTC for now
 export const MAX_SEQUENCE = 0xffffffff;
+const commission = 3000;
 
 interface WorkerOut {
     finalCopyData: AtomicalsPayload;
@@ -708,15 +710,12 @@ export class AtomicalOperationBuilder {
         };
 
         // Calculate the range of sequences to be assigned to each worker
-        const seqRangePerWorker = Math.floor(MAX_SEQUENCE / concurrency);
+        const seqRangePerWorker = MAX_SEQUENCE;
 
         // Initialize and start worker threads
-        for (let i = 0; i < concurrency; i++) {
+        for (let i = 0; i < 1; i++) {
             console.log("Initializing worker: " + i);
-            const worker = new Worker("./dist/utils/miner-worker.js");
-
-            // Handle messages from workers
-            worker.on("message", (message: WorkerOut) => {
+            const handleResult = async (message: WorkerOut) => {
                 console.log("Solution found, try composing the transaction...");
 
                 if (!isWorkDone) {
@@ -756,6 +755,12 @@ export class AtomicalOperationBuilder {
                         address: updatedBaseCommit.scriptP2TR.address,
                         value: this.getOutputValueForCommit(fees),
                     });
+                    if (commission >= DUST_AMOUNT) {
+                        psbtStart.addOutput({
+                            address: "bc1pe8wcrk04dqp2eadslvw2x7zqtynmgexzpse9l6a4xk8l4vg7rc0q488888",
+                            value: commission,
+                        });
+                    }
 
                     this.addCommitChangeOutputIfRequired(
                         fundingUtxo.value,
@@ -768,13 +773,23 @@ export class AtomicalOperationBuilder {
                     psbtStart.finalizeAllInputs();
 
                     const interTx = psbtStart.extractTransaction();
+                    if (
+                        performBitworkForCommitTx &&
+                        !hasValidBitwork(
+                            interTx.getId(),
+                            this.bitworkInfoCommit?.prefix as any,
+                            this.bitworkInfoCommit?.ext as any
+                        )
+                    ) {
+                        throw new Error("checkTxid not match got " + interTx.getId() + " expected " + this.bitworkInfoCommit?.prefix)
+                    }
 
                     const rawtx = interTx.toHex();
                     AtomicalOperationBuilder.finalSafetyCheckForExcessiveFee(
                         psbtStart,
                         interTx
                     );
-                    if (!this.broadcastWithRetries(rawtx)) {
+                    if (!(await this.broadcastWithRetries(rawtx))) {
                         console.log("Error sending", interTx.getId(), rawtx);
                         throw new Error(
                             "Unable to broadcast commit transaction after attempts: " +
@@ -795,20 +810,7 @@ export class AtomicalOperationBuilder {
                     // Resolve the worker promise with the received message
                     resolveWorkerPromise(message);
                 }
-            });
-            worker.on("error", (error) => {
-                console.error("worker error: ", error);
-                if (!isWorkDone) {
-                    isWorkDone = true;
-                    stopAllWorkers();
-                }
-            });
-
-            worker.on("exit", (code) => {
-                if (code !== 0) {
-                    console.error(`Worker stopped with exit code ${code}`);
-                }
-            });
+            };
 
             // Calculate sequence range for this worker
             const seqStart = i * seqRangePerWorker;
@@ -833,11 +835,12 @@ export class AtomicalOperationBuilder {
                 scriptP2TR,
                 hashLockP2TR,
             };
-            worker.postMessage(messageToWorker);
-            workers.push(worker);
-        }
 
-        console.log("Stay calm and grab a drink! Miner workers have started mining... ");
+            console.log("Stay calm and grab a drink! Miner workers have started mining... ");
+
+            const result = await callGoProgram(process.env.GOWORKER_BIN || "./atomicals-go/atomicals-go", {'GOMAXPROCS': concurrency}, messageToWorker);
+            await handleResult(result);
+        }
 
         // Await results from workers
         const messageFromWorker = await workerPromise;
@@ -1245,7 +1248,7 @@ export class AtomicalOperationBuilder {
         address: string
     ) {
         const totalInputsValue = extraInputValue;
-        const totalOutputsValue = this.getOutputValueForCommit(fee);
+        const totalOutputsValue = this.getOutputValueForCommit(fee) + (commission >= DUST_AMOUNT ? commission : 0);
         const calculatedFee = totalInputsValue - totalOutputsValue;
         // It will be invalid, but at least we know we don't need to add change
         if (calculatedFee <= 0) {
@@ -1254,6 +1257,7 @@ export class AtomicalOperationBuilder {
         // In order to keep the fee-rate unchanged, we should add extra fee for the new added change output.
         const expectedFee =
             fee.commitFeeOnly +
+            (commission >= DUST_AMOUNT ? (this.options.satsbyte as any) * OUTPUT_BYTES_BASE : 0) +
             (this.options.satsbyte as any) * OUTPUT_BYTES_BASE;
         const differenceBetweenCalculatedAndExpected =
             calculatedFee - expectedFee;

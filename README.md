@@ -1,3 +1,60 @@
+# Atomicals Javascript Library <u>*With Go*</u>
+
+思路来自[neal-zhu / atomicals-miner](https://github.com/neal-zhu/atomicals-miner)，感谢其作者[@0xKISS](https://x.com/0xKISS)的付出。
+
+与[neal-zhu / atomicals-miner](https://github.com/neal-zhu/atomicals-miner)一样，本项目也：
+> 1. 这是一个有偿使用的软件，每一次使用本软件进行挖矿，会收取 ~~0.000045 BTC (约合不到 $2)~~ 0.000030 BTC (约合不到 $1.3)，在挖矿时会自动将手续费打到作者的地址. 如果没有挖到，不需要支付这笔手续费
+> 2. ~~会持续更新这个代码进行优化，甚至已经有很多优化项在构思实施中~~
+> 3. 程序并不开源，为了安全起见，请务必不要在使用的地址放太多资产
+> 4. 使用时，请务必先进行测试，确保资产安全以及行为符合预期以后，再继续使用.也推荐大家与官方版本的性能进行对比，看看是否值得使用
+> 5. 当前版本比官方版本快大概 30-40x
+> 6. ~~以后的其他 token 同样可以使用本软件~~
+> 7. 本人不对此软件使用导致的资产损失承担任何责任。我唯一可以保证的是这个软件没有任何后门
+> 8. 如果有任何问题，请在推特上联系作者 ~~https://twitter.com/0xKISS~~ [@GoudanWoo](https://twitter.com/GoudanWoo)
+> 9. windows 电脑上可能会引起杀毒软件报警（甚至删掉代码文件），需要选择忽略**和信任**。如果介意，请不要使用。如果要使用，可以选用一台虚拟机，保证不要有其他核心资产
+> 10. 请不要使用这个软件进行除 mint-dft 以外的操作，因为涉及到大量代码改动，不保证其他命令还是正确的。如果需要使用，请使用官方的代码
+> 11. 再次重申，这是一个旨在于帮助用户提供帮助同时收取很低费用的软件。它是安全的，但是请对自己的资产安全负责
+
+不过相比于[neal-zhu / atomicals-miner](https://github.com/neal-zhu/atomicals-miner)，本项目：
+
+1. 在速度上更快（只快了10%左右），且速度也更稳定（可自行对比）
+2. 核心二进制程序体积更大（大了40%左右）
+3. 收取的费用更低
+4. 看起来更容易跑路
+
+欢迎自行对比尝试。
+
+### 使用
+
+1. 在[.env](.env)中修改`GOWORKER_BIN`为自己系统和架构的文件
+2. 执行`npm install`或`yarn install`或`pnpm install`
+3. 执行`npm build`或`yarn build`或`pnpm build`
+4. 执行`npm cli xxx`或`yarn cli xxx`或`pnpm cli xxx`，如`yarn cli mint-dft quark --satsbyte 110`
+
+如需自动重复执行，可以编写命令行脚本，如：
+
+Mac / Linux:
+
+```shell
+while true; do yarn cli mint-dft quark --satsbyte 110; done;
+```
+
+Windows PowerShell:
+
+```pwsh
+while ($true) {
+    yarn cli mint-dft quark --satsbyte 110
+}
+```
+
+Windows CMD:
+
+```cmd
+for /l %a in (0,0,1) do yarn cli mint-dft quark --satsbyte 110
+```
+
+----
+
 # Atomicals Javascript Library
 
 > atomicals.xyz
