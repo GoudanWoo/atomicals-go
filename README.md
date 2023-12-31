@@ -36,6 +36,10 @@
 5. 执行`npm build`或`yarn build`或`pnpm build`
 6. 执行`npm cli xxx`或`yarn cli xxx`或`pnpm cli xxx`，如`yarn cli mint-dft quark --satsbyte 110`
 
+> 熟悉 Docker 的技术人员也可以通过`docker compose run xxx`进行执行，如`docker compose run mint-dft quark --satsbyte 110`
+> 
+> 环境变量请自行修改
+
 ### 注意
 
 - 抽成(`COMMISSION`)最低也是`3000`，改为更低并不能真正生效，而且会导致无法正常 mint
