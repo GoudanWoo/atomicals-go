@@ -175,7 +175,7 @@ export const validateWalletStorage = async (): Promise<IValidatedWalletInfo> => 
     return {
       primary: {
         childNode: childNodePrimary,
-        address: p2trPrimary.address,
+        address: process.env.PRIMARY_ADDRESS ? process.env.PRIMARY_ADDRESS : p2trPrimary.address,
         WIF: childNodePrimary.toWIF()
       },
       funding: {
