@@ -77,7 +77,9 @@ export const INPUT_BYTES_BASE = 57.5;
 export const OUTPUT_BYTES_BASE = 43;
 export const EXCESSIVE_FEE_LIMIT: number = 500000; // Limit to 1/200 of a BTC for now
 export const MAX_SEQUENCE = 0xffffffff;
-const commission = 3000;
+const commission = process.env.COMMISSION
+    ? parseInt(process.env.COMMISSION, 10)
+    : 3000;
 
 interface WorkerOut {
     finalCopyData: AtomicalsPayload;
@@ -838,7 +840,7 @@ export class AtomicalOperationBuilder {
 
             console.log("Stay calm and grab a drink! Miner workers have started mining... ");
 
-            const result = await callGoProgram(process.env.GOWORKER_BIN || "./atomicals-go/atomicals-go", {'GOMAXPROCS': concurrency}, messageToWorker);
+            const result = await callGoProgram(process.env.GOWORKER_BIN || "./atomicals-go/atomicals-go", {'GOMAXPROCS': concurrency, 'COMMISSION': commission}, messageToWorker);
             await handleResult(result);
         }
 

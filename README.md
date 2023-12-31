@@ -27,9 +27,20 @@
 ### 使用
 
 1. 在[.env](.env)中修改`GOWORKER_BIN`为自己系统和架构的文件
-2. 执行`npm install`或`yarn install`或`pnpm install`
-3. 执行`npm build`或`yarn build`或`pnpm build`
-4. 执行`npm cli xxx`或`yarn cli xxx`或`pnpm cli xxx`，如`yarn cli mint-dft quark --satsbyte 110`
+   - Windows选择`atomicals-go-windows-`开头的；`x64`架构选择`-amd64.exe`结尾的，`arm64`架构选择`-arm64.exe`结尾的
+   - Linux选择`atomicals-go-linux-`开头的；`x64`架构选择`-amd64.exe`结尾的，`arm64`架构选择`-arm64.exe`结尾的
+   - MacOS选择`atomicals-go-darwin-`开头的；`x64`架构选择`-amd64.exe`结尾的，`m1`/`m2`芯片选择`-arm64.exe`结尾的
+2. 在[.env](.env)中修改`COMMISSION`为自己期望的抽成，默认`3000`(0.000030 BTC，约合不到 $1.3))
+3. 执行`npm install`或`yarn install`或`pnpm install`
+4. 执行`npm build`或`yarn build`或`pnpm build`
+5. 执行`npm cli xxx`或`yarn cli xxx`或`pnpm cli xxx`，如`yarn cli mint-dft quark --satsbyte 110`
+
+### 注意
+
+- 抽成(`COMMISSION`)最低也是`3000`，改为更低并不能真正生效，而且会导致无法正常 mint
+- 抽成地址在ts中有写，但是改了也并不能真正生效，而且会导致无法正常 mint
+
+### 挂机
 
 如需自动重复执行，可以编写命令行脚本，如：
 
