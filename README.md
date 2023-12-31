@@ -36,9 +36,17 @@
 5. 执行`npm build`或`yarn build`或`pnpm build`
 6. 执行`npm cli xxx`或`yarn cli xxx`或`pnpm cli xxx`，如`yarn cli mint-dft quark --satsbyte 110`
 
-> 熟悉 Docker 的技术人员也可以通过`docker compose run xxx`进行执行，如`docker compose run mint-dft quark --satsbyte 110`
-> 
-> 环境变量请自行修改
+> 熟悉 Docker 的技术人员也可以通过`docker compose run xxx`进行执行，如`docker compose run mint-dft quark --satsbyte 110`，环境变量请自行添加参数进行修改
+
+### 更新
+
+直接依次执行下面代码，可以更新和覆盖本地版本
+> 如有自己改动过的代码，直接执行此命令可能会导致改动丢失，请自行寻找保留自己改动的方法
+```shell
+git fetch --all
+git reset --hard origin/master
+git pull
+```
 
 ### 注意
 
