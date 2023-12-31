@@ -1,0 +1,31 @@
+version: "3.8"
+name: "atomicals-go"
+
+services:
+  app:
+    image: goudanwoo/atomicals-go:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      COMMISSION: 3000
+    command: >
+      mint-dft quark --satsbyte 200
+    volumes:
+      - ./wallets/:/app/wallets/
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: 1
+    networks:
+      net:
+
+networks:
+  net:
+    driver: bridge
+    ipam:
+      driver: default
