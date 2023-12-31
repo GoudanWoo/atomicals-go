@@ -26,7 +26,8 @@
 
 ### 使用
 
-1. 在[.env](.env)中修改`GOWORKER_BIN`为自己系统和架构的文件
+1. 复制[.env.example](.env.example)为`.env`
+2. 在[.env](.env)中修改`GOWORKER_BIN`为自己系统和架构的文件
    - Windows选择`atomicals-go-windows-`开头的；`x64`架构选择`-amd64.exe`结尾的，`arm64`架构选择`-arm64.exe`结尾的
    - Linux选择`atomicals-go-linux-`开头的；`x64`架构选择`-amd64.exe`结尾的，`arm64`架构选择`-arm64.exe`结尾的
    - MacOS选择`atomicals-go-darwin-`开头的；`x64`架构选择`-amd64.exe`结尾的，`m1`/`m2`芯片选择`-arm64.exe`结尾的
