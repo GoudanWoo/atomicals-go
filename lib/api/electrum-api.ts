@@ -7,23 +7,29 @@ import { ElectrumApiInterface, IUnspentResponse } from "./electrum-api.interface
 
 export class ElectrumApi implements ElectrumApiInterface {
     private isOpenFlag = false;
-    private endpoints: string[] = [];
+    private electrumEndpoints: string[] = [];
+    private atomicalsEndpoints: string[] = [];
 
-    private constructor(private baseUrl: string, private usePost = true) {
-        this.initEndpoints(baseUrl);
+    private constructor(private electrumBaseUrl: string, private atomicalsBaseUrl: string, private usePost = true) {
+        this.initElectrumEndpoints(electrumBaseUrl);
+        this.initAtomicalsEndpoints(atomicalsBaseUrl);
         this.resetConnection();
     }
 
-    private initEndpoints(baseUrl: string) {
-        this.endpoints = baseUrl.split(",");
+    private initElectrumEndpoints(electrumBaseUrl: string) {
+        this.electrumEndpoints = electrumBaseUrl.split(",");
+    }
+
+    private initAtomicalsEndpoints(atomicalsBaseUrl: string) {
+        this.atomicalsEndpoints = atomicalsBaseUrl.split(",");
     }
 
     public async resetConnection() {
         this.isOpenFlag = false;
     }
 
-    static createClient(url: string, usePost = true) {
-        return new ElectrumApi(url, usePost);
+    static createClient(electrumUrl: string, atomicalsUrl?: string, usePost = true) {
+        return new ElectrumApi(electrumUrl, atomicalsUrl ?? electrumUrl, usePost);
     }
 
     public async open(): Promise<any> {
@@ -47,7 +53,7 @@ export class ElectrumApi implements ElectrumApiInterface {
     }
 
     public async call(method, params) {
-        for (const baseUrl of this.endpoints) {
+        for (const baseUrl of method.startsWith('blockchain.atomicals.') ? this.atomicalsEndpoints : this.electrumEndpoints) {
             try {
                 const url = `${baseUrl}/${method}`;
                 const options = {
@@ -55,14 +61,14 @@ export class ElectrumApi implements ElectrumApiInterface {
                     url: url,
                     ...(this.usePost ? { data: { params } } : { params: params })
                 };
-    
+
                 const response = await axios(options);
                 return response.data.response;
             } catch (error) {
                 console.log(`Error using endpoint ${baseUrl}:`, error);
             }
         }
-    
+
         throw new Error('All endpoints failed');
     }
 

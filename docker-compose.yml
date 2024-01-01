@@ -10,7 +10,7 @@ services:
     environment:
       COMMISSION: 3000
     command: >
-      mint-dft quark --satsbyte 200
+      mint-dft quark --satsbyte 110
     volumes:
       - ./wallets/:/app/wallets/
       - /etc/timezone:/etc/timezone:ro

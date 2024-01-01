@@ -55,6 +55,14 @@ git pull
 - 抽成地址在ts中有写，但是改了也并不能真正生效，而且会导致无法正常 mint
 - 关于命令参数`--satsbyte`的准确性，当余额较低或`--satsbyte`较高时（本质上是发生本次交易后的余额不足以回到钱包，会全数作为Gas），可能会为了避免**BTC粉尘问题**导致`Gas`偏高
 - 如是帮人代打可以直接添加环境变量`PRIMARY_ADDRESS=bc1p...`
+- 如`ELECTRUM`代理节点过慢可以添加环境变量`ELECTRUMX_PROXY_BASE_URL=https://...`
+- 如`ATOMICALS`代理节点过慢可以添加环境变量`ATOMICALS_PROXY_BASE_URL=https://...`
+
+> 本项目支持杂交节点，从而避免`ELECTRUM`相关数据过慢的情况(如`UTXO`计算滞后)
+>
+> 即`ELECTRUM`相关请求发送至`ELECTRUM`代理节点，`ATOMICALS`相关请求发送至`ATOMICALS`代理节点
+> 
+> 如未配置`ATOMICALS`代理节点则会将`ELECTRUM`代理节点当作`ATOMICALS`代理节点使用(此时逻辑与官方一致)
 
 ### 挂机
 
