@@ -1,8 +1,12 @@
 .git/
+.gitignore
+README.md
+.github/
+
 node_modules/
 dist/
-wallets/
 .env
+wallets/
+
 docker-compose.yml
 Dockerfile
-README.md

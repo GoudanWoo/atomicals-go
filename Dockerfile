@@ -3,6 +3,7 @@
 ###############################################################################
 
 FROM node:20.10.0-alpine3.19 AS base
+LABEL authors="goudanwoo"
 
 WORKDIR /app
 
